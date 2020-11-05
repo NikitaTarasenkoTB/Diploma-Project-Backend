@@ -1,12 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const helmet = require('helmet');
 const { errors, celebrate, Joi } = require('celebrate');
 
 const app = express();
 require('dotenv').config();
 
 const { PORT = 3000 } = process.env;
+
+app.use(helmet());
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -17,11 +20,14 @@ const appRouter = require('./routes/index');
 
 const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errorHandler');
+const rateLimit = require('./middlewares/rateLimit');
 
 const { signin, signup } = require('./controllers/users');
 const { NotFoundError } = require('./errors/errors');
 
-mongoose.connect('mongodb://localhost:27017/diplomadb', {
+const { DB_LINK = 'mongodb://localhost:27017/diplomadb' } = process.env;
+
+mongoose.connect(DB_LINK, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useFindAndModify: false,
@@ -30,14 +36,14 @@ mongoose.connect('mongodb://localhost:27017/diplomadb', {
 
 app.use(requestLogger);
 
-app.post('/api/signin', celebrate({
+app.post('/api/signin', rateLimit, celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
   }),
 }), signin);
 
-app.post('/api/signup', celebrate({
+app.post('/api/signup', rateLimit, celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().trim().required().min(8),
@@ -45,7 +51,7 @@ app.post('/api/signup', celebrate({
   }),
 }), signup);
 
-app.use('/api', auth, appRouter);
+app.use('/api', rateLimit, auth, appRouter);
 app.use((request, response, next) => next(new NotFoundError('Запрашиваемый ресурс не найден')));
 
 app.use(errorLogger);

@@ -30,20 +30,14 @@ mongoose.connect('mongodb://localhost:27017/diplomadb', {
 
 app.use(requestLogger);
 
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
-  }, 0);
-});
-
-app.post('/signin', celebrate({
+app.post('api/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
   }),
 }), signin);
 
-app.post('/signup', celebrate({
+app.post('api/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().trim().required().min(8),
@@ -51,7 +45,7 @@ app.post('/signup', celebrate({
   }),
 }), signup);
 
-app.use('/', auth, appRouter);
+app.use('api/', auth, appRouter);
 app.use((request, response, next) => next(new NotFoundError('Запрашиваемый ресурс не найден')));
 
 app.use(errorLogger);

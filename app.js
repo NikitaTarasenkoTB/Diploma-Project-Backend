@@ -30,14 +30,14 @@ mongoose.connect('mongodb://localhost:27017/diplomadb', {
 
 app.use(requestLogger);
 
-app.post('api/signin', celebrate({
+app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
   }),
 }), signin);
 
-app.post('api/signup', celebrate({
+app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().trim().required().min(8),
@@ -45,7 +45,7 @@ app.post('api/signup', celebrate({
   }),
 }), signup);
 
-app.use('api/', auth, appRouter);
+app.use('/', auth, appRouter);
 app.use((request, response, next) => next(new NotFoundError('Запрашиваемый ресурс не найден')));
 
 app.use(errorLogger);

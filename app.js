@@ -13,13 +13,13 @@ app.use(bodyParser.json());
 
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 
-const articlesRouter = require('./routes/articles');
-const usersRouter = require('./routes/users');
+const appRouter = require('./routes/index');
 
 const auth = require('./middlewares/auth');
+const errorHandler = require('./middlewares/errorHandler');
 
 const { signin, signup } = require('./controllers/users');
-const { ServerError, NotFoundError } = require('./errors/errors');
+const { NotFoundError } = require('./errors/errors');
 
 mongoose.connect('mongodb://localhost:27017/diplomadb', {
   useNewUrlParser: true,
@@ -51,19 +51,12 @@ app.post('/signup', celebrate({
   }),
 }), signup);
 
-app.use('/', auth, articlesRouter);
-app.use('/', auth, usersRouter);
-
+app.use('/', auth, appRouter);
 app.use((request, response, next) => next(new NotFoundError('Запрашиваемый ресурс не найден')));
 
 app.use(errorLogger);
-
 app.use(errors());
-
-app.use((myError, request, response, next) => { // eslint-disable-line no-unused-vars
-  if (!myError.status) { myError = new ServerError(); } // eslint-disable-line no-param-reassign
-  response.status(myError.status).send({ message: myError.message });
-});
+app.use(errorHandler);
 
 app.listen(PORT);
 console.log(`Listening port: ${PORT}`);

@@ -21,6 +21,7 @@ const appRouter = require('./routes/index');
 const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errorHandler');
 const rateLimit = require('./middlewares/rateLimit');
+const allowCors = require('./middlewares/allowCors');
 
 const { signin, signup } = require('./controllers/users');
 const { NotFoundError } = require('./errors/errors');
@@ -33,6 +34,8 @@ mongoose.connect(DB_LINK, {
   useFindAndModify: false,
   useUnifiedTopology: true,
 });
+
+app.use(allowCors);
 
 app.use(requestLogger);
 

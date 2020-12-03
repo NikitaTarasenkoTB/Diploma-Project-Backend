@@ -1,8 +1,8 @@
-module.exports = (request, response, nex) => {
+module.exports = (request, response, next) => {
   const allowedCors = ['localhost:8080']
-  const { origin } = req.headers;
+  const { origin } = request.headers;
   if (allowedCors.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', origin);
+    response.header('Access-Control-Allow-Origin', origin);
   }
   next();
 }

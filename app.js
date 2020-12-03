@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
+const cors = require('cors');
 const { errors, celebrate, Joi } = require('celebrate');
 
 const app = express();
@@ -21,7 +22,6 @@ const appRouter = require('./routes/index');
 const auth = require('./middlewares/auth');
 const errorHandler = require('./middlewares/errorHandler');
 const rateLimit = require('./middlewares/rateLimit');
-const allowCors = require('./middlewares/allowCors');
 
 const { signin, signup } = require('./controllers/users');
 const { NotFoundError } = require('./errors/errors');
@@ -35,7 +35,7 @@ mongoose.connect(DB_LINK, {
   useUnifiedTopology: true,
 });
 
-app.use(allowCors);
+app.use(cors());
 
 app.use(requestLogger);
 

@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
+const cors = require('cors');
 const { errors, celebrate, Joi } = require('celebrate');
 
 const app = express();
@@ -33,6 +34,8 @@ mongoose.connect(DB_LINK, {
   useFindAndModify: false,
   useUnifiedTopology: true,
 });
+
+app.use(cors());
 
 app.use(requestLogger);
 
